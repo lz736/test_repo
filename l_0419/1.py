@@ -1,7 +1,4 @@
 #定义变量储存布尔类型的数据
-from ast import Num
-
-
 bool_1 = True
 bool_2 = False
 print(f"bool_1变量的内容是：{bool_1}， 类型是：{type(bool_1)}")
