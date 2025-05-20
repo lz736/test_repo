@@ -20,10 +20,16 @@ print("end")
 
 # print("输入了一个数字：%s"%a)
 
-a = int("123")
-print(type(a))
-b = a + 100
-print(b)
+# a = int("123")
+# print(type(a))
+# b = a + 100
+# print(b)
 
-c = int(input("请输c："))
-print("输入了一个数字：%d"%c)
+# c = int(input("请输c："))
+# print("输入了一个数字：%d"%c)
+
+jiandao = 0
+shito = 1
+bu = 2
+
+
