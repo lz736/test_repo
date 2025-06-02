@@ -108,19 +108,19 @@ schoolname = [["北京大学,清华大学"],["复旦大学,南开大学,师范�
 print(schoolname[0][0])
 import random
 
-office = [[],[],[]]
+offices = [[],[],[]]
 
 names = ["A","B","C","D","E","F","G","H"]
 
 for name in names:
     index = random.randint(0,2)
-    office[index].append(name)
+    offices[index].append(name)
 
 i = 1
 for office in offices:
-    print("办公室的人数为：%d"(i,len(office)))
+    print("办公室%d的人数为：%d"%(i,len(office)))
     i += 1
     for name in office:
-        print("%s%name,end=\t")
+        print("%s"%name,end="\t")
     print("\n")
-    print("-"*20)
+    print("-")
