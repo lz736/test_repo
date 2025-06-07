@@ -42,6 +42,65 @@
 
 # f.close()
 
-import os   #文件重命名
+# import os   #文件重命名
 
-os.rename("test.txt","test1.txt")
+# os.rename("test.txt","test1.txt")
+
+
+
+
+#捕获异常
+'''
+try:
+    print("--------test------------1---")
+
+    f = open("123.txt","r")
+
+    print("--------test------------2---")
+
+except IOError:   #文件没找到，部署ID异常（输入输出异常）
+    pass          #捕获异常后执行的代码
+'''
+
+'''
+try:
+    print(num)
+#except IOError:
+except NameError:
+    print("产生错误了")
+'''
+
+#捕获所有异常
+'''
+try:
+    print("--------test------------1---")
+    f = open("123.txt","r")
+    print("--------test------------2---")
+
+    print(num)
+except Exception as result:          #Exception可以承接所有异常
+    print("产生错误了")
+    print(result)
+'''
+
+#try...finally...和嵌套
+
+import time
+try:
+    f = open("test.txt","r")
+
+    try:
+        while True:
+            content = f.readline()
+            if len(content) == 0:
+                break
+            time.sleep(2)
+            print(content)
+    finally:
+        f.close()
+        print("文件关闭")
+
+
+
+except Exception as result:
+    print("发生异常...")
