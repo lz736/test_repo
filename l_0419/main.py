@@ -1,4 +1,5 @@
 # main.py
+print("main.py start")
 import os
 from typing import List, AsyncGenerator
 
@@ -9,7 +10,7 @@ from pydantic import BaseModel
 # ✅ 依赖：pip install "volcengine-python-sdk[ark]" fastapi "uvicorn[standard]"
 from volcenginesdkarkruntime import AsyncArk   # 官方异步客户端
 
-API_KEY = os.getenv("ARK_API_KEY")            # export ARK_API_KEY=xxx
+API_KEY = "3e99e691-4b2e-42fd-b133-52440fc58156"          # export ARK_API_KEY=xxx
 MODEL_ID = "deepseek-v3"                      # 也可以替换为你创建的 Endpoint ID
 
 if not API_KEY:
@@ -68,3 +69,8 @@ async def chat(req: ChatRequest):
 @app.get("/")
 async def root():
     return {"msg": "DeepSeek-v3 FastAPI server is running"}
+
+
+
+
+
