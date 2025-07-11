@@ -34,3 +34,33 @@ ENV/
 
 # Environment variables
 .env
+.env.local
+.env.*.local
+
+# Chat and image files
+chat_history.json
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*_compressed.*
+*_test.*
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# FastAPI/Uvicorn
+*.pid

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI聊天助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .chat-header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e1e5e9;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .message-model {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .message-image {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .message-image:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 25px;
+            padding: 10px 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .input-container:focus-within {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .message-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 16px;
+            resize: none;
+            max-height: 120px;
+            min-height: 20px;
+            line-height: 1.4;
+        }
+
+        .input-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-btn, .send-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+
+        .file-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .file-btn:hover {
+            background: #5a6268;
+            transform: scale(1.1);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .file-preview {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 12px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .file-preview.show {
+            display: block;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>🤖 AI聊天助手</h1>
+            <div class="subtitle">支持文本和图片聊天</div>
+            <button class="clear-btn" onclick="clearChat()">清空对话</button>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+                <div class="message-content">
+                    <div>👋 你好！我是AI助手，可以帮你回答问题和分析图片。</div>
+                    <div class="message-time">刚刚</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            AI正在思考中...
+        </div>
+        
+        <div class="chat-input">
+            <div class="file-preview" id="filePreview"></div>
+            <div class="input-container">
+                <textarea 
+                    class="message-input" 
+                    id="messageInput" 
+                    placeholder="输入消息... (支持上传图片)"
+                    rows="1"
+                ></textarea>
+                <div class="input-buttons">
+                    <input type="file" class="file-input" id="fileInput" accept="image/*">
+                    <button class="file-btn" onclick="document.getElementById('fileInput').click()" title="上传图片">
+                        📎
+                    </button>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="发送消息">
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let uploadedImageData = null;
+
+        // 自动调整输入框高度
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // 回车发送消息
+        messageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 文件选择处理
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        });
+
+        async function uploadFile(file) {
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = `📤 正在上传: ${file.name}...`;
+            preview.classList.add('show');
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    selectedFile = data.filename;
+                    uploadedImageData = data.data_url;
+
+                    const sizeKB = (data.size / 1024).toFixed(1);
+                    const compressedText = data.compressed ? ' (已压缩)' : '';
+
+                    preview.innerHTML = `📷 已上传: ${data.filename} (${sizeKB}KB${compressedText}) <span onclick="clearFile()" style="cursor:pointer; margin-left:10px;">❌</span>`;
+                } else {
+                    showError(data.error || '文件上传失败');
+                    clearFile();
+                }
+            } catch (error) {
+                showError('文件上传失败: ' + error.message);
+                clearFile();
+            }
+        }
+
+        function showFilePreview(fileName) {
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = `📷 已选择图片: ${fileName} <span onclick="clearFile()" style="cursor:pointer; margin-left:10px;">❌</span>`;
+            preview.classList.add('show');
+        }
+
+        function clearFile() {
+            selectedFile = null;
+            uploadedImageData = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('filePreview').classList.remove('show');
+        }
+
+        function addMessage(message, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+
+            let content = `<div class="message-content">`;
+
+            // 显示图片
+            if (message.image_data_url) {
+                content += `<img src="${message.image_data_url}" class="message-image" alt="上传的图片" onclick="window.open('${message.image_data_url}', '_blank')">`;
+            }
+
+            if (message.image) {
+                content += `<div class="message-image-info">🖼️ ${message.image}</div>`;
+            }
+
+            content += `<div>${message.content}</div>`;
+            content += `<div class="message-time">${message.timestamp}</div>`;
+
+            if (message.model) {
+                content += `<div class="message-model">模型: ${message.model}</div>`;
+            }
+
+            content += `</div>`;
+            messageDiv.innerHTML = content;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showError(errorMsg) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = `❌ ${errorMsg}`;
+            messagesContainer.appendChild(errorDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const sendBtn = document.getElementById('sendBtn');
+            
+            if (show) {
+                loading.classList.add('show');
+                sendBtn.disabled = true;
+            } else {
+                loading.classList.remove('show');
+                sendBtn.disabled = false;
+            }
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+
+            if (!message && !uploadedImageData) {
+                return;
+            }
+
+            // 显示加载状态
+            showLoading(true);
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        image_data_url: uploadedImageData,
+                        image_filename: selectedFile
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // 添加用户消息
+                    addMessage(data.user_message, true);
+                    
+                    // 添加AI回复
+                    addMessage(data.ai_message, false);
+                    
+                    // 清空输入
+                    messageInput.value = '';
+                    messageInput.style.height = 'auto';
+                    clearFile();
+                } else {
+                    showError(data.error || '发送失败');
+                }
+            } catch (error) {
+                showError('网络错误，请检查服务器是否运行');
+                console.error('Error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function clearChat() {
+            if (confirm('确定要清空所有对话记录吗？')) {
+                try {
+                    await fetch('/api/clear', { method: 'POST' });
+                    document.getElementById('chatMessages').innerHTML = `
+                        <div class="message assistant">
+                            <div class="message-content">
+                                <div>👋 对话已清空！我是AI助手，可以帮你回答问题和分析图片。</div>
+                                <div class="message-time">刚刚</div>
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    showError('清空失败');
+                }
+            }
+        }
+
+        // 页面加载时获取历史消息
+        async function loadMessages() {
+            try {
+                const response = await fetch('/api/messages');
+                const data = await response.json();
+                
+                if (data.messages && data.messages.length > 0) {
+                    document.getElementById('chatMessages').innerHTML = '';
+                    data.messages.forEach(msg => {
+                        addMessage(msg, msg.role === 'user');
+                    });
+                }
+            } catch (error) {
+                console.error('加载历史消息失败:', error);
+            }
+        }
+
+        // 页面加载完成后加载历史消息
+        window.addEventListener('load', loadMessages);
+    </script>
+</body>
+</html>
