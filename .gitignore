@@ -39,6 +39,7 @@ ENV/
 
 # Chat and image files
 chat_history.json
+*.json
 *.png
 *.jpg
 *.jpeg
